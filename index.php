@@ -1,7 +1,10 @@
 <?php
+// Include database configuration to establish connection
 require_once "core/dbConfig.php";
+// Include file that fetches all portfolio data from database
 require_once "core/fetchData.php";
 
+// Map social media platform names to their corresponding Font Awesome icon classes
 $socialIconsMap = [
     'GitHub' => 'fab fa-github',
     'Messenger' => 'fab fa-facebook-messenger',
@@ -19,13 +22,16 @@ $socialIconsMap = [
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>John Carlo Tulin | Full Stack Web Developer</title>
     
+    <!-- External CSS frameworks and libraries for styling and icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- SweetAlert2 library for beautiful alert/confirmation dialogs -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
     <style>
+        /* CSS custom properties for consistent theming throughout the site */
         :root {
             --primary-accent: #212529; /* Dark/Professional */
             --secondary-bg: #f8f9fa;
@@ -45,7 +51,7 @@ $socialIconsMap = [
         .fw-800 { font-weight: 800; }
         .ls-2 { letter-spacing: 2px; }
         
-        /* Interactive Elements */
+        /* Interactive hover effect that lifts elements up when hovered */
         .hover-lift {
             transition: transform var(--transition-speed), box-shadow var(--transition-speed);
         }
@@ -54,6 +60,7 @@ $socialIconsMap = [
             box-shadow: var(--card-hover-shadow) !important;
         }
 
+        /* Scale effect for images on hover to create zoom effect */
         .hover-scale img {
             transition: transform 0.5s ease;
         }
@@ -72,14 +79,14 @@ $socialIconsMap = [
         /* Section Styling */
         section { position: relative; }
         
-        /* Hero Specifics */
+        /* Gradient text effect for hero title */
         .hero-title {
             background: linear-gradient(45deg, #000, #555);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        /* Edit Button Floater styling */
+        /* Styling for floating edit buttons (only visible when logged in) */
         .edit-btn-float {
             z-index: 10;
             opacity: 0.7;
@@ -87,7 +94,7 @@ $socialIconsMap = [
         }
         .edit-btn-float:hover { opacity: 1; }
 
-        /* Login Button */
+        /* Glassmorphism effect for login/logout button */
         .auth-btn {
             backdrop-filter: blur(10px);
             background: rgba(255,255,255,0.8);
@@ -105,6 +112,7 @@ $socialIconsMap = [
 </head>
 <body>
 
+    <!-- Conditional rendering: Show logout button if user is logged in, otherwise show login button -->
     <?php if($loggedIn): ?>
         <a href="logout.php" class="btn btn-danger rounded-pill position-fixed top-0 end-0 m-4 px-4 shadow" style="z-index: 1000;">
             <i class="fas fa-sign-out-alt me-2"></i> Logout
@@ -115,12 +123,15 @@ $socialIconsMap = [
         </a>
     <?php endif; ?>
 
+    <!-- Hero cover section with dynamic background image from database -->
     <section class="w-100 position-relative shadow-sm" 
         style="height: 65vh; 
                <?= !empty($cover) ? "background: url('" . htmlspecialchars($cover) . "') center/cover no-repeat;" : 'background: #eee;' ?>
                border-bottom-left-radius: 0px; border-bottom-right-radius: 0px;">
+        <!-- Dark gradient overlay for better text readability -->
         <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.0));"></div>
 
+        <!-- Edit button visible only when logged in -->
         <?php if($loggedIn): ?>
             <a href="manage.php?page=edit&section=cover" class="btn btn-light btn-sm shadow edit-btn-float position-absolute top-0 start-0 m-4 rounded-pill">
                 <i class="fas fa-camera me-1"></i> Edit Cover
@@ -128,23 +139,29 @@ $socialIconsMap = [
         <?php endif; ?>
     </section>
 
+    <!-- Main hero section with overlapping design (negative margin creates overlap effect) -->
     <section class="py-5 bg-white position-relative mt-n5" style="z-index: 2; margin-top: -50px; border-radius: 40px 40px 0 0; border-top: 1px solid rgba(0,0,0,0.05);">
         <div class="container py-4">
             <div class="row align-items-center g-5">
+                <!-- Left column: Hero text content -->
                 <div class="col-lg-7">
+                    <!-- Professional badge/role identifier -->
                     <span class="badge bg-dark text-white mb-3 ls-2 px-3 py-2 rounded-1">
                         <?= htmlspecialchars($hero['badge'] ?? 'FULL STACK DEVELOPER') ?>
                     </span>
+                    <!-- Main name/title with newline support for multi-line display -->
                     <h1 class="fw-800 display-2 text-dark mb-3 lh-1 hero-title">
                         <?= nl2br(htmlspecialchars($hero['title'] ?? "JOHN\nCARLO\nTULIN")) ?>
                     </h1>
                     
+                    <!-- Bordered content box for subtitle and quote -->
                     <div class="ps-4 border-start border-4 border-dark mt-4">
                         <h4 class="fw-bold text-dark mb-1"><?= htmlspecialchars($hero['subtitle'] ?? 'Computer Science Student') ?></h4>
                         <p class="text-secondary mb-3 h6"><?= htmlspecialchars($hero['school'] ?? 'Emilio Aguinaldo College Cavite') ?></p>
                         <p class="fst-italic text-muted small mb-0">"<?= htmlspecialchars($hero['quote'] ?? 'When you do good, no one remembers; but when you do bad, everyone forgets.') ?>"</p>
                     </div>
 
+                    <!-- Edit button for admin users -->
                     <?php if($loggedIn): ?>
                         <div class="mt-4">
                             <a href="manage.php?page=edit&section=hero" class="btn btn-outline-primary btn-sm rounded-pill px-4">Edit Hero</a>
@@ -152,14 +169,18 @@ $socialIconsMap = [
                     <?php endif; ?>
                 </div>
 
+                <!-- Right column: Year card and social media links -->
                 <div class="col-lg-5">
+                    <!-- Large card displaying current year level -->
                     <div class="card bg-dark text-white border-0 rounded-4 p-5 text-center shadow-lg hover-lift mb-4 position-relative overflow-hidden">
+                        <!-- Decorative circle element -->
                         <div class="position-absolute top-0 end-0 bg-white opacity-10 rounded-circle" style="width: 150px; height: 150px; margin: -50px;"></div>
                         
                         <h1 class="fw-800 display-1 mb-0" style="font-size: 6rem;"><?= htmlspecialchars($hero['year'] ?? '4TH') ?></h1>
                         <p class="ls-2 mb-0 opacity-75">YEAR STUDENT</p>
                     </div>
 
+                    <!-- Social media icon buttons dynamically generated from database -->
                     <div class="d-flex justify-content-center gap-2 flex-wrap">
                         <?php if(isset($hero['social']) && is_array($hero['social'])): ?>
                             <?php foreach($hero['social'] as $social): ?>
@@ -176,10 +197,12 @@ $socialIconsMap = [
         </div>
     </section>
 
+    <!-- Statistics section displaying key portfolio metrics -->
     <section class="py-5 bg-light">
         <div class="container">
             <div class="row g-4">
                 <?php 
+                // Define labels for each statistic category
                 $statsLabels = [
                     'technologies' => 'Technologies',
                     'projects' => 'Major Projects',
@@ -187,9 +210,11 @@ $socialIconsMap = [
                     'ambitions' => 'Ambitions'
                 ];
                 $s_index = 0;
+                // Loop through and create alternating colored stat cards
                 foreach($statsLabels as $key => $label): 
                 ?>
                 <div class="col-6 col-md-3">
+                    <!-- Alternating background colors for visual variety -->
                     <div class="card border-0 shadow-sm h-100 text-center py-4 rounded-4 hover-lift <?= $s_index % 2 == 1 ? 'bg-white' : 'bg-dark text-white' ?>">
                         <div class="card-body">
                             <h2 class="fw-800 display-5 mb-1"><?= htmlspecialchars($stats[$key] ?? '0') ?></h2>
@@ -210,9 +235,11 @@ $socialIconsMap = [
         </div>
     </section>
 
+    <!-- About Me section with personal information cards -->
     <section class="py-5 bg-white">
         <div class="container py-4">
             <div class="row align-items-start g-5">
+                <!-- Left column: Title and strengths/talents cards -->
                 <div class="col-lg-4">
                     <h1 class="fw-800 display-4 mb-4 text-uppercase">About<br><span class="text-secondary opacity-25">Me.</span></h1>
                     <div class="d-flex flex-column gap-4">
@@ -227,6 +254,7 @@ $socialIconsMap = [
                     </div>
                 </div>
                 
+                <!-- Middle column: Inspiration and fears with offset positioning -->
                 <div class="col-lg-4">
                     <div class="d-flex flex-column gap-4 mt-lg-5 pt-lg-5">
                         <div class="p-4 bg-light rounded-4 border-start border-4 border-secondary">
@@ -240,12 +268,14 @@ $socialIconsMap = [
                     </div>
                 </div>
 
+                <!-- Right column: Bucket list card -->
                 <div class="col-lg-4">
                     <div class="card border-0 shadow-sm rounded-4 h-100">
                         <div class="card-body p-4">
                             <h3 class="fw-bold mb-4"><i class="fas fa-check-double me-2 text-warning"></i> Bucket List</h3>
                             <ul class="list-group list-group-flush">
                                 <?php 
+                                // Default bucket list items if none exist in database
                                 $bucketList = $about['bucket'] ?? ['Travel abroad', 'Perform on a well-known platform', 'Get a decent life'];
                                 foreach($bucketList as $item): 
                                 ?>
@@ -268,6 +298,7 @@ $socialIconsMap = [
         </div>
     </section>
 
+    <!-- Personality traits section with alternating badge styles -->
     <section class="py-5 bg-dark text-white">
         <div class="container py-4">
             <div class="text-center mb-5">
@@ -277,6 +308,7 @@ $socialIconsMap = [
             
             <div class="d-flex flex-wrap justify-content-center gap-3">
                 <?php 
+                    // Handle both array and direct value formats for personality data
                     $traits = $personality['traits'] ?? $personality ?? ['COMPETITIVE', 'CREATIVE', 'AMBIVERT', 'RESOURCEFUL', 'ADVENTUROUS'];
                     if (!is_array($traits) || empty($traits)) {
                         $traits = ['COMPETITIVE', 'CREATIVE', 'AMBIVERT', 'RESOURCEFUL', 'ADVENTUROUS'];
@@ -284,9 +316,11 @@ $socialIconsMap = [
                     
                     $t_index = 0;
                     foreach($traits as $trait): 
+                        // Extract trait name if stored as associative array
                         $traitText = is_array($trait) ? ($trait['name'] ?? '') : $trait;
                         if (empty($traitText)) continue;
                     ?>
+                        <!-- Alternating badge styles (filled vs outline) -->
                         <span class="badge-custom <?= $t_index % 2 == 0 ? 'bg-white text-dark' : 'border border-light text-white' ?> fs-6">
                             <?= htmlspecialchars(strtoupper($traitText)) ?>
                         </span>
@@ -303,6 +337,7 @@ $socialIconsMap = [
         </div>
     </section>
 
+    <!-- Technology stack section displaying all technologies with icons -->
     <section class="py-5 bg-light">
         <div class="container py-4">
             <h1 class="fw-800 display-4 mb-5 text-center">Tech Stack</h1>
@@ -311,6 +346,7 @@ $socialIconsMap = [
                 <div class="col-6 col-md-3 col-lg-2">
                     <div class="card border-0 shadow-sm h-100 text-center py-4 rounded-4 hover-lift bg-white">
                         <div class="card-body">
+                            <!-- Font Awesome icon for each technology -->
                             <i class="<?= htmlspecialchars($t['icon']) ?> fs-1 mb-3 text-dark"></i>
                             <p class="fw-bold mb-0 small text-uppercase ls-2"><?= htmlspecialchars($t['name']) ?></p>
                         </div>
@@ -326,6 +362,7 @@ $socialIconsMap = [
         </div>
     </section>
 
+    <!-- Featured projects section with image cards -->
     <section class="py-5 bg-white">
         <div class="container py-4">
             <div class="d-flex justify-content-between align-items-end mb-5">
@@ -342,6 +379,7 @@ $socialIconsMap = [
                 <?php foreach($projects as $p): ?>
                     <div class="col-lg-6">
                         <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden hover-scale hover-lift">
+                            <!-- 16:9 aspect ratio container for project images -->
                             <div class="ratio ratio-16x9 bg-light">
                                 <img src="<?= htmlspecialchars($p['image']) ?>" class="object-fit-cover" alt="<?= htmlspecialchars($p['title']) ?>">
                             </div>
@@ -349,9 +387,11 @@ $socialIconsMap = [
                                 <h4 class="fw-bold mb-2"><?= htmlspecialchars($p['title']) ?></h4>
                                 <p class="text-secondary mb-4"><?= htmlspecialchars($p['description']) ?></p>
                                 
+                                <!-- Edit and delete buttons for logged-in admins -->
                                 <?php if($loggedIn): ?>
                                     <div class="d-flex gap-2">
                                         <a href="manage.php?page=edit_project&id=<?= $p['id'] ?>" class="btn btn-sm btn-light rounded-pill">Edit</a>
+                                        <!-- Delete button with data attribute for JavaScript handling -->
                                         <button class="btn btn-outline-danger btn-sm rounded-pill px-3 delete-project" data-id="<?= $p['id'] ?>">Delete</button>
                                     </div>
                                 <?php endif; ?>
@@ -363,10 +403,12 @@ $socialIconsMap = [
         </div>
     </section>
 
+    <!-- Education section showing college and high school -->
     <section class="py-5 bg-light">
         <div class="container py-4">
             <h1 class="fw-800 display-4 mb-5 text-center">Education</h1>
             <div class="row g-4 justify-content-center">
+                <!-- College card with icon -->
                 <div class="col-lg-5">
                     <div class="card border-0 shadow rounded-4 p-4 h-100">
                         <div class="card-body text-center">
@@ -379,6 +421,7 @@ $socialIconsMap = [
                         </div>
                     </div>
                 </div>
+                <!-- High school card with contrasting dark theme -->
                 <div class="col-lg-5">
                     <div class="card border-0 shadow rounded-4 p-4 h-100 bg-dark text-white">
                         <div class="card-body text-center">
@@ -400,6 +443,7 @@ $socialIconsMap = [
         </div>
     </section>
 
+    <!-- Certifications section displaying all certificates -->
     <section class="py-5 bg-white">
         <div class="container py-4">
             <div class="d-flex justify-content-between align-items-center mb-5">
@@ -413,6 +457,7 @@ $socialIconsMap = [
                 <?php foreach($certifications as $c): ?>
                     <div class="col-lg-4 col-md-6">
                         <div class="card border-0 shadow-sm rounded-4 h-100 hover-lift">
+                            <!-- Certificate image display -->
                             <div class="p-3 pb-0">
                                 <img src="<?= htmlspecialchars($c['image']) ?>" class="img-fluid rounded-3 border w-100" alt="<?= htmlspecialchars($c['title']) ?>">
                             </div>
@@ -422,6 +467,7 @@ $socialIconsMap = [
                                 <?php if($loggedIn): ?>
                                     <div class="mt-3 border-top pt-3">
                                         <a href="manage.php?page=edit_cert&id=<?= $c['id'] ?>" class="btn btn-sm btn-light rounded-pill">Edit</a>
+                                        <!-- Delete button with data attribute for JavaScript handler -->
                                         <button class="btn btn-sm btn-danger rounded-pill delete-cert" data-id="<?= $c['id'] ?>">Delete</button>
                                     </div>
                                 <?php endif; ?>
@@ -433,11 +479,13 @@ $socialIconsMap = [
         </div>
     </section>
 
+    <!-- Call-to-action footer section with contact options -->
     <section class="py-5 bg-dark text-white text-center">
         <div class="container py-5">
             <h1 class="fw-800 display-3 mb-2">Let's Work Together</h1>
             <p class="lead text-white-50 mb-5">Have a project in mind? Let's build something amazing.</p>
             
+            <!-- Contact buttons with social media links -->
             <div class="d-flex justify-content-center gap-3 flex-wrap">
                 <a href="#" class="btn btn-light btn-lg rounded-pill px-5 fw-bold hover-lift">
                     <i class="fas fa-envelope me-2"></i> Email Me
@@ -450,12 +498,14 @@ $socialIconsMap = [
                 </a>
             </div>
 
+            <!-- Copyright footer -->
             <div class="mt-5 pt-5 border-top border-white border-opacity-10">
                 <p class="small text-white-50 fw-bold mb-0">© 2025 JOHN CARLO TULIN. ALL RIGHTS RESERVED.</p>
             </div>
         </div>
     </section>
 
+    <!-- External JavaScript for Bootstrap functionality and custom delete handlers -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
     <script src="assets/delete.js"></script>
 
