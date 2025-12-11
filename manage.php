@@ -158,6 +158,7 @@ if(!isset($_SESSION['user'])){
 
                     <!-- Form with conditional enctype for file uploads (cover section) -->
                     <form method="POST" <?= in_array($section, ['cover']) ? 'enctype="multipart/form-data"' : '' ?>>
+                        
                         <?php
                         // Switch between different portfolio sections
                         switch ($section):
@@ -165,7 +166,7 @@ if(!isset($_SESSION['user'])){
                             // COVER IMAGE SECTION: Upload and display cover image
                             case 'cover':
                                 $img = $value['image'] ?? '';
-                        ?>
+                            ?>
                             <!-- Display current cover image -->
                             <div class="mb-4 text-center bg-light rounded-4 p-4 border border-dashed">
                                 <label class="d-block mb-3">Current Cover Image</label>
@@ -183,23 +184,24 @@ if(!isset($_SESSION['user'])){
                             </div>
                         <?php break; ?>
 
+
                         <?php 
                         // HERO SECTION: Edit hero banner content (title, subtitle, etc.)
                         case 'hero':
                             // Loop through hero fields
-                            foreach (['badge','name','subtitle','school','quote','year'] as $f):
-                                $val = $value[$f] ?? '';
-                        ?>
-                            <div class="mb-4">
-                                <label><?= ucfirst($f) ?></label>
-                                <!-- Use textarea for title and quote, input for others -->
-                                <?php if($f === 'title' || $f === 'quote'): ?>
-                                    <textarea name="data[<?= $f ?>]" class="form-control" rows="<?= $f === 'title' ? 3 : 2 ?>"><?= htmlspecialchars($val) ?></textarea>
-                                <?php else: ?>
-                                    <input name="data[<?= $f ?>]" value="<?= htmlspecialchars($val) ?>" class="form-control">
-                                <?php endif; ?>
-                            </div>
-                        <?php endforeach;
+                            foreach (['badge','name','profession','school','quote','year'] as $f):
+                                    $val = $value[$f] ?? '';
+                            ?>
+                                <div class="mb-4">
+                                    <label><?= ucfirst($f) ?></label>
+                                    <!-- Use textarea for title and quote, input for others -->
+                                    <?php if($f === 'name' || $f === 'quote'): ?>
+                                        <textarea name="data[<?= $f ?>]" class="form-control" rows="<?= $f === 'name' ? 3 : 2 ?>"><?= htmlspecialchars($val) ?></textarea>
+                                    <?php else: ?>
+                                        <input name="data[<?= $f ?>]" value="<?= htmlspecialchars($val) ?>" class="form-control">
+                                    <?php endif; ?>
+                                </div>
+                            <?php endforeach;
 
                             // Handle social media data (convert string to array if needed)
                             $socialData = $value['social'] ?? [];
@@ -234,8 +236,8 @@ if(!isset($_SESSION['user'])){
                                 <?php endforeach; ?>
                                 </div>
                             </div>
-
                         <?php break; ?>
+
 
                         <?php 
                         // STATS SECTION: Edit portfolio statistics
@@ -618,28 +620,7 @@ if(!isset($_SESSION['user'])){
 
     <!-- Include external JavaScript for save functionality -->
     <script src="assets/save.js"></script>
-    <!-- Include SweetAlert2 -->
-    <script>
-    document.querySelectorAll('.delete-tech').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const url = this.getAttribute('data-delete-url');
-
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "This tech will be deleted!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, delete it!',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = url;
-                }
-            });
-        });
-    });
-</script>
+    <!-- Include external JavaScript for delete functionality -->
+    <script src="assets/delete.js"></script>
 </body>
 </html>
