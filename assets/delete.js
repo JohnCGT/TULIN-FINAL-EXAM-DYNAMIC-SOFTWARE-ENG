@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // Helper function for SweetAlert2 confirmation
+    // Shows a confirmation dialog and returns true if the user clicks "Yes"
     const confirmDelete = async (message) => {
         const result = await Swal.fire({
             title: message,
@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return result.isConfirmed;
     };
 
-    // Helper function for SweetAlert2 toast alerts
+    // Displays a small toast message at the top-right corner
     const showAlert = (title, icon = 'success') => {
         Swal.fire({
             title: title,
@@ -32,12 +32,17 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Delete Project
+    // Listens for delete clicks on project delete buttons
     document.querySelectorAll('.delete-project').forEach(btn => {
         btn.addEventListener('click', async (e) => {
             e.preventDefault();
+
+            // Ask for confirmation
             if(!await confirmDelete('Are you sure you want to delete this project?')) return;
 
             const id = btn.dataset.id;
+
+            // Send delete request to API
             const res = await fetch('api.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -45,6 +50,8 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             const data = await res.json();
+
+            // If deletion successful, show toast and remove card
             if(data.success){
                 showAlert('Project deleted', 'success');
                 btn.closest('.col-lg-6')?.remove();
@@ -55,12 +62,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Delete Certification
+    // Handles deletion of certifications via API
     document.querySelectorAll('.delete-cert').forEach(btn => {
         btn.addEventListener('click', async (e) => {
             e.preventDefault();
+
+            // Confirmation popup
             if(!await confirmDelete('Are you sure you want to delete this certification?')) return;
 
             const id = btn.dataset.id;
+
+            // API request to delete certification
             const res = await fetch('api.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -68,6 +80,8 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             const data = await res.json();
+
+            // Remove the correct card wrapper on success
             if(data.success){
                 showAlert('Certification deleted', 'success');
                 btn.closest('.col-lg-4')?.remove(); // correct wrapper for cert cards
@@ -78,110 +92,25 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Delete Tech Stack Item
+    // Removes an item stored in the tech array (saved in settings)
     document.querySelectorAll('.delete-tech').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            if(!await confirmDelete('Are you sure you want to delete this technology?')) return;
+        btn.addEventListener('click', function() {
+            const url = this.getAttribute('data-delete-url');
 
-            const index = btn.dataset.index;
-            const getRes = await fetch('api.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'get_tech' })
-            });
-            const getData = await getRes.json();
-
-            if(getData.success && getData.data) {
-                let techArray = JSON.parse(getData.data.value || '[]');
-                techArray.splice(index, 1);
-
-                const updateRes = await fetch('api.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'update_tech', data: techArray })
-                });
-                const updateData = await updateRes.json();
-
-                if(updateData.success){
-                    showAlert('Technology deleted', 'success');
-                    btn.closest('.col-6')?.remove();
-                } else {
-                    showAlert('Error: ' + updateData.message, 'error');
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This tech will be deleted!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = url;
                 }
-            }
-        });
-    });
-
-    // Delete Personality Trait
-    document.querySelectorAll('.delete-trait').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            if(!await confirmDelete('Are you sure you want to delete this trait?')) return;
-
-            const index = btn.dataset.index;
-            const getRes = await fetch('api.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'get_personality' })
             });
-            const getData = await getRes.json();
-
-            if(getData.success && getData.data) {
-                let personalityData = JSON.parse(getData.data.value || '{}');
-                let traits = personalityData.traits || personalityData || [];
-                traits.splice(index, 1);
-
-                const updateRes = await fetch('api.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'update_personality', data: { traits } })
-                });
-                const updateData = await updateRes.json();
-
-                if(updateData.success){
-                    showAlert('Trait deleted', 'success');
-                    btn.closest('.badge')?.remove();
-                } else {
-                    showAlert('Error: ' + updateData.message, 'error');
-                }
-            }
-        });
-    });
-
-    // Delete Bucket List Item
-    document.querySelectorAll('.delete-bucket').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            if(!await confirmDelete('Are you sure you want to delete this bucket list item?')) return;
-
-            const index = btn.dataset.index;
-            const getRes = await fetch('api.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'get_about' })
-            });
-            const getData = await getRes.json();
-
-            if(getData.success && getData.data) {
-                let aboutData = JSON.parse(getData.data.value || '{}');
-                let bucket = aboutData.bucket || [];
-                bucket.splice(index, 1);
-                aboutData.bucket = bucket;
-
-                const updateRes = await fetch('api.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'update_about', data: aboutData })
-                });
-                const updateData = await updateRes.json();
-
-                if(updateData.success){
-                    showAlert('Bucket list item deleted', 'success');
-                    btn.closest('.list-group-item')?.remove();
-                } else {
-                    showAlert('Error: ' + updateData.message, 'error');
-                }
-            }
         });
     });
 
